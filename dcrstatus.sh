@@ -1,20 +1,28 @@
 #! /bin/sh
 echo "!"
+
+# SETTINGS
 dcrwalletLogFolder="/root/.dcrwallet/logs/mainnet/"
 decredFolder="/root/"
+
+
+
 printf "\033c"
 echo "?"
 
-
+# CHECK CONNECTION TO RPC SERVER
 dcrctl --wallet getbalance >/dev/null 2>&1
 if [ $? -eq 1 ]; then
 echo "CRITICAL - No connection to dcrwallet"
 exit 2
 fi
-dateNow=`date +"%d-%b-%Y %X"`
 
+
+dateNow=`date +"%d-%b-%Y %X"`
 ll=$(last -1 -R  $USER | head -1 | cut -c 20-)
 lastlogin=$(echo "$ll")
+
+
 
 printf "\033c"
 echo ">"
@@ -82,9 +90,17 @@ printf "\033c"
 echo ">>>>>>>>>"
 votec1=$(echo "scale=2; $voted/100" | bc)
 votec2=$(echo "scale=2; $expired/$votec1" | bc)
-
 missedc1=$(echo "scale=2; $voted/100" | bc)
 missedc2=$(echo "scale=2; $missed/$missedc1" | bc)
+
+printf "\033c"
+echo ">>>>>>>>>>"
+getnetworkhashps=`dcrctl getnetworkhashps`
+getdifficulty=`dcrctl getdifficulty`
+getcoinsupply=`dcrctl getcoinsupply`
+getconnectioncount=`dcrctl getconnectioncount`
+# NETWORL HEALTH
+
 
 
 printf "\033c"
@@ -94,12 +110,12 @@ echo "$dcrversion | $balanceAll DCR | $dateNow | $lastlogin"
 echo "Blockheight: $blockcount"
 /bin/echo -e "\e[33m >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< \e[0m"
 echo ""
-/bin/echo -e "\e[36m	.-=[ deCRED WALLET ]=-. 		.-=[ POS TICKETS ]=-."
+/bin/echo -e "\e[36m	.-=[ deCRED WALLET ]=-. 		.-=[ POS TICKETS ]=-.			.-=[ NETWORK ]=-."
 echo ""
-/bin/echo -e "\e[1m	All:		$balanceAll		All: 		$(($immature+$live))\e[0m"
-echo "	Locked: 	$balanceLocked		Mature:         $live"
-/bin/echo -e "\e[1m 	Spendable:	$balanceSpendable 		Immature:       $immature\e[0m"
-echo "	Immature:	$imatureFunds 		Done:           $voted"
+/bin/echo -e "\e[1m	All:		$balanceAll		All: 		$(($immature+$live))			Hashrate:	$getnetworkhashps\e[0m"
+echo "	Locked: 	$balanceLocked		Mature:         $live			Difficulty:	$getdifficulty"
+/bin/echo -e "\e[1m 	Spendable:	$balanceSpendable 		Immature:       $immature			CoinSupply	$getcoinsupply\e[0m"
+echo "	Immature:	$imatureFunds 		Done:           $voted			Peers:		$getconnectioncount"
 /bin/echo -e "\e[1m 						Won:            $totalsubsidy\e[0m"
 echo ""
 /bin/echo -e "\e[33m >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< \e[0m"
