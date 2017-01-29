@@ -2,21 +2,27 @@
 echo "!"
 
 # SETTINGS
-dcrwalletLogFolder="/root/.dcrwallet/logs/mainnet/"
-decredFolder="/root/"
+decredFolder="~/"
+dcrctlChainArgs=""
+dcrctlWalletArgs="--wallet"
+
+
+
+# IF YOUR WALLET has SOLO STAKE MINING ENABLED SET YOUR LOGFILE DIRECTORY:
+dcrwalletLogFolder="~/.dcrwallet/logs/mainnet/"
 
 
 
 printf "\033c"
 echo "?"
-
 # CHECK CONNECTION TO RPC SERVER
-dcrctl --wallet getbalance >/dev/null 2>&1
+dcrctl ${dcrctlWalletArgs} getbalance >/dev/null 2>&1
 if [ $? -eq 1 ]; then
 echo "CRITICAL - No connection to dcrwallet"
 exit 2
 fi
 
+cd $decredFolder
 
 dateNow=`date +"%d-%b-%Y %X"`
 ll=$(last -1 -R  $USER | head -1 | cut -c 20-)
@@ -26,28 +32,28 @@ lastlogin=$(echo "$ll")
 
 printf "\033c"
 echo ">"
-balanceAll=`dcrctl --wallet getbalance '*' 0 all`
-balanceLocked=`dcrctl --wallet getbalance '*' 0 locked`
-balanceSpendable=`dcrctl --wallet getbalance '*' 0 spendable`
-stakeInfo=`dcrctl --wallet getstakeinfo`
+balanceAll=`dcrctl ${dcrctlWalletArgs} getbalance '*' 0 all`
+balanceLocked=`dcrctl ${dcrctlWalletArgs} getbalance '*' 0 locked`
+balanceSpendable=`dcrctl ${dcrctlWalletArgs} getbalance '*' 0 spendable`
+stakeInfo=`dcrctl ${dcrctlWalletArgs} getstakeinfo`
 
 printf "\033c"
 echo ">>"
-maxPrice=`dcrctl --wallet getticketmaxprice`
-ticketFee=`dcrctl --wallet getticketfee`
-blockcount=`dcrctl getblockcount`
-dcrversion=`dcrctl --version`
-stakeDiff=`dcrctl --wallet estimatestakediff`
-ticketfeeinfo=`dcrctl --wallet ticketfeeinfo`
+maxPrice=`dcrctl ${dcrctlWalletArgs} getticketmaxprice`
+ticketFee=`dcrctl ${dcrctlWalletArgs} getticketfee`
+blockcount=`dcrctl ${dcrctlChainArgs} getblockcount`
+dcrversion=`dcrctl ${dcrctlChainArgs} --version`
+stakeDiff=`dcrctl ${dcrctlWalletArgs} estimatestakediff`
+ticketfeeinfo=`dcrctl ${dcrctlWalletArgs} ticketfeeinfo`
 imatureFunds=`awk -va=$balanceAll -vl=$balanceLocked -vs=$balanceSpendable 'BEGIN{printf "%.8f" , a-l-s}'`
 
 printf "\033c"
 echo ">>>"
-all=$(dcrctl --wallet getbalance "*" 0 all)
-spend=$(dcrctl --wallet getbalance default 0 spendable)
-lock=$(dcrctl --wallet getbalance default 0 locked)
-json=$(dcrctl --wallet getstakeinfo)
-winfo=$(dcrctl --wallet walletinfo)
+all=$(dcrctl ${dcrctlWalletArgs} getbalance "*" 0 all)
+spend=$(dcrctl ${dcrctlWalletArgs} getbalance default 0 spendable)
+lock=$(dcrctl ${dcrctlWalletArgs} getbalance default 0 locked)
+json=$(dcrctl ${dcrctlWalletArgs} getstakeinfo)
+winfo=$(dcrctl ${dcrctlWalletArgs} walletinfo)
 
 printf "\033c"
 echo ">>>>"
