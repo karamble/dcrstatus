@@ -2,14 +2,14 @@
 echo "!"
 
 # SETTINGS
-decredFolder="~/"
+decredFolder="$HOME"
 dcrctlChainArgs=""
 dcrctlWalletArgs="--wallet"
 
 
 
 # IF YOUR WALLET has SOLO STAKE MINING ENABLED SET YOUR LOGFILE DIRECTORY:
-dcrwalletLogFolder="~/.dcrwallet/logs/mainnet/"
+dcrwalletLogFolder="$HOME/.dcrwallet/logs/mainnet/"
 
 
 
@@ -22,7 +22,19 @@ echo "CRITICAL - No connection to dcrwallet"
 exit 2
 fi
 
+# CHECK WALLET SYNCING
+printf "\033c"
+echo "??"
+dcrctl ${dcrctlWalletArgs} getstakeinfo >/dev/null 2>&1
+if [ $? -eq 1 ]; then
+echo "CRITICAL - CURRENTLY SYNCING TO LATEST BLOCK - TRY AGAIN LATER"
+exit 2
+fi
+
+
+# NEEDS FILE CHECKS IF DCRCTL IS AVAILABLE
 cd $decredFolder
+
 
 dateNow=`date +"%d-%b-%Y %X"`
 ll=$(last -1 -R  $USER | head -1 | cut -c 20-)
@@ -32,9 +44,11 @@ lastlogin=$(echo "$ll")
 
 printf "\033c"
 echo ">"
-balanceAll=`dcrctl ${dcrctlWalletArgs} getbalance '*' 0 all`
-balanceLocked=`dcrctl ${dcrctlWalletArgs} getbalance '*' 0 locked`
-balanceSpendable=`dcrctl ${dcrctlWalletArgs} getbalance '*' 0 spendable`
+balanceAll=`dcrctl ${dcrctlWalletArgs} getbalance | jq -r '[.balances[]|.total] | add'`
+balanceLocked=`dcrctl ${dcrctlWalletArgs} getbalance | jq -r '[.balances[]|.lockedbytickets] | add'`
+balanceSpendable=`dcrctl ${dcrctlWalletArgs} getbalance | jq -r '[.balances[]|.spendable] | add'`
+balanceImmaturecoinbaserewards=`dcrctl ${dcrctlWalletArgs} getbalance | jq -r '[.balances[]|.immaturecoinbaserewards] | add'`
+balanceImmaturestakegeneration=`dcrctl ${dcrctlWalletArgs} getbalance | jq -r '[.balances[]|.immaturestakegeneration] | add'`
 stakeInfo=`dcrctl ${dcrctlWalletArgs} getstakeinfo`
 
 printf "\033c"
@@ -49,9 +63,9 @@ imatureFunds=`awk -va=$balanceAll -vl=$balanceLocked -vs=$balanceSpendable 'BEGI
 
 printf "\033c"
 echo ">>>"
-all=$(dcrctl ${dcrctlWalletArgs} getbalance "*" 0 all)
-spend=$(dcrctl ${dcrctlWalletArgs} getbalance default 0 spendable)
-lock=$(dcrctl ${dcrctlWalletArgs} getbalance default 0 locked)
+all=$(dcrctl ${dcrctlWalletArgs} getbalance "*" 0)
+spend=$(dcrctl ${dcrctlWalletArgs} getbalance default 0)
+lock=$(dcrctl ${dcrctlWalletArgs} getbalance default 0)
 json=$(dcrctl ${dcrctlWalletArgs} getstakeinfo)
 winfo=$(dcrctl ${dcrctlWalletArgs} walletinfo)
 
@@ -121,8 +135,9 @@ echo ""
 /bin/echo -e "\e[1m	All:		$balanceAll		All: 		$(($immature+$live))			Hashrate:	$getnetworkhashps\e[0m"
 echo "	Locked: 	$balanceLocked		Mature:         $live			Difficulty:	$getdifficulty"
 /bin/echo -e "\e[1m 	Spendable:	$balanceSpendable 		Immature:       $immature			CoinSupply	$getcoinsupply\e[0m"
-echo "	Immature:	$imatureFunds 		Done:           $voted			Peers:		$getconnectioncount"
-/bin/echo -e "\e[1m 						Won:            $totalsubsidy\e[0m"
+echo "	Immature All:	$imatureFunds 		Done:           $voted			Peers:		$getconnectioncount"
+/bin/echo -e "\e[1m	^ Coinbase: 	$balanceImmaturecoinbaserewards			Won:            $totalsubsidy\e[0m"
+echo "	^ Stakegen: 	$balanceImmaturestakegeneration"
 echo ""
 /bin/echo -e "\e[33m >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< \e[0m"
 echo ""
