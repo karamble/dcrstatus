@@ -24,7 +24,6 @@ fi
 
 # CHECK WALLET SYNCING
 printf "\033c"
-echo "??"
 dcrctl ${dcrctlWalletArgs} getstakeinfo >/dev/null 2>&1
 if [ $? -eq 1 ]; then
 echo "CRITICAL - CURRENTLY SYNCING TO LATEST BLOCK - TRY AGAIN LATER"
@@ -37,8 +36,6 @@ cd $decredFolder
 
 
 dateNow=`date +"%d-%b-%Y %X"`
-ll=$(last -1 -R  $USER | head -1 | cut -c 20-)
-lastlogin=$(echo "$ll")
 
 
 
@@ -122,7 +119,7 @@ getconnectioncount=`dcrctl getconnectioncount`
 
 printf "\033c"
 
-echo "$dcrversion | $balanceAll DCR | $dateNow | $lastlogin"
+echo "$dcrversion | $balanceAll DCR | $dateNow"
 /bin/echo -e "\e[95mStatus  \e[33m=> \e[35mPoS Enabled: $stake, Wallet Unlocked: $unlocked, Ticket Max Price: $maxPrice\e[0m"
 echo "Blockheight: $blockcount"
 /bin/echo -e "\e[33m >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< \e[0m"
