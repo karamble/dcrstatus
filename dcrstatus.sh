@@ -63,9 +63,6 @@ imatureFunds=`awk -va=$balanceAll -vl=$balanceLocked -vs=$balanceSpendable 'BEGI
 
 printf "\033c"
 echo ">>>"
-all=$(dcrctl ${dcrctlWalletArgs} getbalance "*" 0)
-spend=$(dcrctl ${dcrctlWalletArgs} getbalance default 0)
-lock=$(dcrctl ${dcrctlWalletArgs} getbalance default 0)
 json=$(dcrctl ${dcrctlWalletArgs} getstakeinfo)
 winfo=$(dcrctl ${dcrctlWalletArgs} walletinfo)
 
