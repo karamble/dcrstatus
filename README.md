@@ -21,7 +21,7 @@ Default: `$HOME`
 
 ### dcrctlChainArgs
 
-Type: 'Arguments` *to add on your dcrctl command that queries dcrd rpc 
+Type: `Arguments` *to add on your dcrctl command that queries dcrd rpc 
 Default: `` 
 
 ### dcrctlWalletArgs
