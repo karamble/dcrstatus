@@ -68,6 +68,7 @@ echo ">>>>"
 ticketfeeinfoMin=$(echo "$ticketfeeinfo" | jq '.feeinfomempool.min')
 ticketfeeinfoMax=$(echo "$ticketfeeinfo" | jq '.feeinfomempool.max')
 ticketfeeinfoMedian=$(echo "$ticketfeeinfo" | jq '.feeinfomempool.median')
+averageticketprice=$(echo "scale=6;`dcrctl getticketpoolvalue|sed -e 's/[eE]+*/\*10\^/'`/`dcrctl --wallet getstakeinfo|jq .poolsize`"|bc)
 
 printf "\033c"
 echo ">>>>>"
@@ -126,7 +127,7 @@ echo "Blockheight: $blockcount"
 echo ""
 /bin/echo -e "\e[36m	.-=[ deCRED WALLET ]=-. 		.-=[ POS TICKETS ]=-.			.-=[ NETWORK ]=-."
 echo ""
-/bin/echo -e "\e[1m	All:		$balanceAll		All: 		$(($immature+$live))			Hashrate:	$getnetworkhashps\e[0m"
+/bin/echo -e "\e[1m	All:		$balanceAll 		All: 		$(($immature+$live))			Hashrate:	$getnetworkhashps\e[0m"
 echo "	Locked: 	$balanceLocked		Mature:         $live			Difficulty:	$getdifficulty"
 /bin/echo -e "\e[1m 	Spendable:	$balanceSpendable 		Immature:       $immature			CoinSupply	$getcoinsupply\e[0m"
 echo "	Immature All:	$imatureFunds 		Done:           $voted			Peers:		$getconnectioncount"
@@ -147,6 +148,7 @@ echo "	AllMempool:     $allmempooltix 			Expired:        $expired"
 echo "	Immature: 	$immature"
 /bin/echo -e "	\e[1mMy Fee:         $ticketFee\e[0m"
 echo "	My Price: 	$maxPrice"
+/bin/echo -e "	\e[1mAvgTicketprice: $averageticketprice\e[0m"
 echo ""
 /bin/echo -e "\e[36m	.-=]MEMPOOL[=-. \e[0m"
 echo ""
