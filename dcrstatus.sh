@@ -72,7 +72,7 @@ averageticketprice=$(echo "scale=6;`dcrctl getticketpoolvalue|sed -e 's/[eE]+*/\
 
 printf "\033c"
 echo ">>>>>"
-stake=$(echo "$winfo" | jq '.stakemining')
+stake=$(echo "$winfo" | jq '.voting')
 txfee=$(echo "$winfo" | jq '.txfee')
 unlocked=$(echo "$winfo" | jq '.unlocked')
 ticketfee=$(echo "$winfo" | jq '.ticketfee')
@@ -174,9 +174,6 @@ do
 done
 echo ""
 /bin/echo -e "\e[33m >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< ><\e[0m"
-echo ""
-
-
 if [ $stake = "true" ]; then
 #  SOLO STAKE LOG PARSER
 	cd $dcrwalletLogFolder
@@ -191,7 +188,7 @@ if [ $stake = "true" ]; then
 	  done;
 	  echo
 	}`
-
+echo ""
 /bin/echo -e "\e[36m    .-=[ SOLO POS ]=-.\e[0m"
 echo ""
 /bin/echo -e "\e[1m	Current Block: 			$blockcount\e[0m"
@@ -202,11 +199,8 @@ echo "  $votedTicketsPerDay  |"
 echo ""
 echo "					●▬▬▬▬๑۩۩๑▬▬▬▬▬●"
 /bin/echo -e "	\e[36m༼ つ ◕_◕ ༽つ \e[32mSUPPORT DECRED AND JOIN A STAKEPOOL"
-/bin/echo -e "			\e[5mhttp://pool.d3c.red			\e[36m／人 ◕‿‿◕ 人＼\e[0m"
+/bin/echo -e "			\e[5mhttps://pool.d3c.red			\e[36m／人 ◕‿‿◕ 人＼\e[0m"
 fi
-
-
 echo ""
-echo " .oOo.oOo.oOo.oOo.oOo.oOo.oOo.oOo.oOo.oOo.oOo.oOo.oOo.oOo.oOo."
-/bin/echo -e "\e[1mDecred | Rethink Digital Currency.\e[0m"
-
+/bin/echo -e "\e[36m	Decred | Rethink Digital Currency.\e[0m"
+echo ""
