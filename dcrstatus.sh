@@ -47,10 +47,10 @@ balanceSpendable=`dcrctl ${dcrctlWalletArgs} getbalance | jq -r '[.balances[]|.s
 balanceImmaturecoinbaserewards=`dcrctl ${dcrctlWalletArgs} getbalance | jq -r '[.balances[]|.immaturecoinbaserewards] | add'`
 balanceImmaturestakegeneration=`dcrctl ${dcrctlWalletArgs} getbalance | jq -r '[.balances[]|.immaturestakegeneration] | add'`
 stakeInfo=`dcrctl ${dcrctlWalletArgs} getstakeinfo`
+voteChoices=$(dcrctl ${dcrctlWalletArgs} getvotechoices)
 
 printf "\033c"
 echo ">>"
-maxPrice=`dcrctl ${dcrctlWalletArgs} getticketmaxprice`
 ticketFee=`dcrctl ${dcrctlWalletArgs} getticketfee`
 blockcount=`dcrctl ${dcrctlChainArgs} getblockcount`
 dcrversion=`dcrctl ${dcrctlChainArgs} --version`
@@ -114,14 +114,17 @@ getnetworkhashps=`dcrctl getnetworkhashps`
 getdifficulty=`dcrctl getdifficulty`
 getcoinsupply=`dcrctl getcoinsupply`
 getconnectioncount=`dcrctl getconnectioncount`
-# NETWORL HEALTH
 
+printf "\033c"
+echo ">>>>>>>>>>"
+voteVersion=$(echo "$voteChoices" | jq '.version')
+choiceCounter=$(echo "$voteChoices" | jq '.choices | length')
 
 
 printf "\033c"
 
 echo "$dcrversion | $balanceAll DCR | $dateNow"
-/bin/echo -e "\e[95mStatus  \e[33m=> \e[35mPoS Enabled: $stake, Wallet Unlocked: $unlocked, Ticket Max Price: $maxPrice\e[0m"
+/bin/echo -e "\e[95mStatus  \e[33m=> \e[35mPoS Enabled: $stake, Wallet Unlocked: $unlocked\e[0m"
 echo "Blockheight: $blockcount"
 /bin/echo -e "\e[33m >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< \e[0m"
 echo ""
@@ -136,25 +139,39 @@ echo "	^ Stakegen: 	$balanceImmaturestakegeneration"
 echo ""
 /bin/echo -e "\e[33m >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< \e[0m"
 echo ""
-/bin/echo -e "\e[36m 	.-=[ TICKETBUYER ]=-.			.-=[ TICKET STATISTICS ]=-."
+/bin/echo -e "\e[36m 	.-=[ TICKETBUYER ]=-.			.-=[ TICKET STATISTICS ]=-.		.-=]MEMPOOL[=-."
 echo ""
-/bin/echo -e "\e[1m 	Price Now: 	$difficulty		Done:           $voted\e[0m"
-echo "	Next Expected: 	$difficultyExpected		Won:            $totalsubsidy"
-/bin/echo -e "\e[1m 	Next Max:	$difficultyMax		Missed:         $missed\e[0m"
+/bin/echo -e "\e[1m 	Price Now: 	$difficulty		Done:           $voted			 MemFeeMax:      $ticketfeeinfoMax\e[0m"
+echo "	Next Expected: 	$difficultyExpected		Won:            $totalsubsidy		 MemFeeMin:      $ticketfeeinfoMin"
+/bin/echo -e "\e[1m 	Next Max:	$difficultyMax		Missed:         $missed			MemFeeMedian:   $ticketfeeinfoMedian\e[0m"
 echo "	Next Min:	$difficultyMin 		Missed %	$missedc2"
 /bin/echo -e "\e[1m 	Poolsize:       $poolsize 			Revoked:        $revoked\e[0m"
 echo "	AllMempool:     $allmempooltix 			Expired:        $expired"
 /bin/echo -e "\e[1m 	OwnMempool: 	$ownmempooltix			Expired %       $votec2\e[0m"
 echo "	Immature: 	$immature"
 /bin/echo -e "	\e[1mMy Fee:         $ticketFee\e[0m"
-echo "	My Price: 	$maxPrice"
 /bin/echo -e "	\e[1mAvgTicketprice: $averageticketprice\e[0m"
 echo ""
-/bin/echo -e "\e[36m	.-=]MEMPOOL[=-. \e[0m"
+/bin/echo -e "\e[36m	.-=[ AGENDAS & VOTING ]=-. \e[0m"
 echo ""
-/bin/echo -e "\e[1m	MemFeeMax:      $ticketfeeinfoMax\e[0m"
-echo "	MemFeeMin:      $ticketfeeinfoMin"
-/bin/echo -e "\e[1m	MemFeeMedian: 	$ticketfeeinfoMedian\e[0m"
+/bin/echo -e "\e[1m	Version:      	v$voteVersion\e[0m"
+echo "	Agendas:	$choiceCounter"
+echo ""
+/bin/echo -e "\e[36m	.-=[ YOUR CHOICES ]=-. \e[0m"
+echo ""
+count=$(($choiceCounter-1))
+for i in `seq 0 $count`;
+do
+/bin/echo -e "\e[33m	.oOo.oOo.oOo.oOo.oOo.oOo.oOo.\e[0m"
+/bin/echo -n "	AgendaID:	"
+/bin/echo "$voteChoices" | jq -r ".choices[$i].agendaid"
+/bin/echo -n "	Description:	"
+/bin/echo "$voteChoices" | jq -r ".choices[$i].agendadescription"
+/bin/echo -n "	Choice:		"
+/bin/echo "$voteChoices" | jq -r ".choices[$i].choiceid"
+/bin/echo -n "	ChoiceDesc:	"
+/bin/echo "$voteChoices" | jq -r ".choices[$i].choicedescription"
+done
 echo ""
 /bin/echo -e "\e[33m >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< ><\e[0m"
 echo ""
