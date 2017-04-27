@@ -1,5 +1,11 @@
 #! /bin/sh
 echo "!"
+key=''
+
+while :
+do
+
+if [ "$key" = 'e' ] || [ "$key" = '' ]; then
 
 # SETTINGS
 decredFolder="$HOME"
@@ -73,6 +79,7 @@ averageticketprice=$(echo "scale=6;`dcrctl getticketpoolvalue|sed -e 's/[eE]+*/\
 printf "\033c"
 echo ">>>>>"
 stake=$(echo "$winfo" | jq '.voting')
+ticketpurchasing=$(echo "$winfo" | jq '.ticketpurchasing')
 txfee=$(echo "$winfo" | jq '.txfee')
 unlocked=$(echo "$winfo" | jq '.unlocked')
 ticketfee=$(echo "$winfo" | jq '.ticketfee')
@@ -123,10 +130,10 @@ choiceCounter=$(echo "$voteChoices" | jq '.choices | length')
 
 printf "\033c"
 
-echo "$dcrversion | $balanceAll DCR | $dateNow"
-/bin/echo -e "\e[95mStatus  \e[33m=> \e[35mPoS Enabled: $stake, Wallet Unlocked: $unlocked\e[0m"
-echo "Blockheight: $blockcount"
-/bin/echo -e "\e[33m >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< \e[0m"
+echo -n "$dcrversion | $balanceAll DCR | $dateNow | "
+/bin/echo -e -n "\e[35mVoting: $stake, Wallet Unlocked: $unlocked, Ticketpurchasing: $ticketpurchasing\e[0m"
+echo " | Blockheight: $blockcount"
+/bin/echo -e "\e[33m >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< ><\e[0m"
 echo ""
 /bin/echo -e "\e[36m	.-=[ deCRED WALLET ]=-. 		.-=[ POS TICKETS ]=-.			.-=[ NETWORK ]=-."
 echo ""
@@ -137,7 +144,7 @@ echo "	Immature All:	$imatureFunds 		Done:           $voted			Peers:		$getconnec
 /bin/echo -e "\e[1m	^ Coinbase: 	$balanceImmaturecoinbaserewards			Won:            $totalsubsidy\e[0m"
 echo "	^ Stakegen: 	$balanceImmaturestakegeneration"
 echo ""
-/bin/echo -e "\e[33m >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< \e[0m"
+/bin/echo -e "\e[33m >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< ><\e[0m"
 echo ""
 /bin/echo -e "\e[36m 	.-=[ TICKETBUYER ]=-.			.-=[ TICKET STATISTICS ]=-.		.-=]MEMPOOL[=-."
 echo ""
@@ -173,7 +180,7 @@ do
 /bin/echo "$voteChoices" | jq -r ".choices[$i].choicedescription"
 done
 echo ""
-/bin/echo -e "\e[33m >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< ><\e[0m"
+/bin/echo -e "\e[33m >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< ><\e[0m"
 if [ $stake = "true" ]; then
 #  SOLO STAKE LOG PARSER
 	cd $dcrwalletLogFolder
@@ -204,3 +211,80 @@ fi
 echo ""
 /bin/echo -e "\e[36m	Decred | Rethink Digital Currency.\e[0m"
 echo ""
+
+read -r -p "Select [e]nter to reload, [q]uit or [v]oteinfo: " key
+fi
+
+# GETVOTEINFO PAGE
+if [ "$key" = 'v' ]; then
+printf "\033c"
+echo ">"
+json=$(dcrctl ${dcrctlWalletArgs} getvoteinfo $voteVersion)
+printf "\033c"
+echo ">>"
+startheight=$(echo "$json" | jq '.startheight')
+endheight=$(echo "$json" | jq '.endheight')
+quorum=$(echo "$json" | jq '.quorum')
+totalvotes=$(echo "$json" | jq '.totalvotes')
+printf "\033c"
+echo ">>>"
+agendaCounter=$(echo "$json" | jq '.agendas | length')
+
+echo -n "$dcrversion | $balanceAll DCR | $dateNow | "
+/bin/echo -e -n "\e[35mVoting Enabled: $stake, Wallet Unlocked: $unlocked, Ticketpurchasing: $ticketpurchasing\e[0m"
+echo " | Blockheight: $blockcount"
+/bin/echo -e "\e[33m >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< ><\e[0m"
+echo ""
+/bin/echo -e "\e[36m	.-=[ VOTEINFO ]=-. \e[0m"
+echo ""
+/bin/echo -e "\e[1m	Startheight: 	$startheight\e[0m"
+echo "	Endheight: 	$endheight"
+/bin/echo -e "\e[1m	Quorum: 	$quorum\e[0m"
+echo "	Total Votes: 	$totalvotes"
+/bin/echo -e "\e[1m	Agendas: 	$agendaCounter\e[0m"
+echo ""
+
+
+
+count=$(($agendaCounter-1))
+for i in `seq 0 $count`;
+do
+choicesCounter=$(echo "$json" | jq ".agendas[$i].choices | length")
+count2=$(($choicesCounter-1))
+/bin/echo -e "\e[1m	+-----------------------------------------------------------------+\e[0m"
+getAgendaId=$(echo "$json" | jq -r ".agendas[$i].id")
+getAgendaDescription=$(echo "$json" | jq -r ".agendas[$i].description")
+getAgendaStatus=$(echo "$json" | jq -r ".agendas[$i].status")
+getAgendaQuorumprogress=$(echo "$json" | jq -r ".agendas[$i].quorumprogress")
+
+/bin/echo -e "\e[1m	|	AgendaID:	$getAgendaId\e[0m"
+/bin/echo "	|	Description:	$getAgendaDescription"
+/bin/echo -e "\e[1m	|	Status:		$getAgendaStatus\e[0m"
+/bin/echo "	|	Quorumprogress:	$getAgendaQuorumprogress%"
+echo "	+---"
+for j in `seq 0 $count2`;
+do
+	getAgendaChoiceId=$(echo "$json" | jq -r ".agendas[$i].choices[$j].id")
+	getAgendaChoiceDescription=$(echo "$json" | jq -r ".agendas[$i].choices[$j].description")
+	getAgendaChoiceCount=$(echo "$json" | jq -r ".agendas[$i].choices[$j].count")
+	/bin/echo -e "\e[1m	|	ChoiceID:	$getAgendaChoiceId\e[0m"
+	/bin/echo "	|	Description:	$getAgendaChoiceDescription"
+	/bin/echo -e "\e[1m	|	Votes:		$getAgendaChoiceCount\e[0m"
+	echo "	+- - - - - - - - - - - -"
+	echo ""
+done
+
+done
+echo ""
+/bin/echo -e "\e[33m >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< ><\e[0m"
+echo ""
+read -r -p "Select [e]nter to reload, [q]uit or [v]oteinfo: " key
+fi
+
+# QUIT
+if [ "$key" = 'q' ]; then
+	echo "bye!"
+	break
+fi
+
+done
