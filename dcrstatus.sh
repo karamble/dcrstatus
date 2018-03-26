@@ -91,7 +91,7 @@ voted=$(echo "$json" | jq '.voted')
 missed=$(echo "$json" | jq '.missed')
 proportionmissed=$(echo "$json" | jq '.proportionmissed')
 revoked=$(echo "$json" | jq '.revoked')
-difficulty=$(echo "$json" | jq '.difficulty')
+stakedifficulty=$(echo "$json" | jq '.difficulty')
 poolsize=$(echo "$json" | jq '.poolsize')
 
 printf "\033c"
@@ -118,10 +118,14 @@ missedc2=$(echo "scale=2; $missed/$missedc1" | bc)
 printf "\033c"
 echo ">>>>>>>>>>"
 getnetworkhashps=`dcrctl getnetworkhashps`
+networkhashth=$(echo "scale=3; $getnetworkhashps/1000000000000" | bc)
 getdifficulty=`dcrctl getdifficulty`
+difficultystrip=${getdifficulty%.*}
+difficulty=$(echo "$difficultystrip" | numfmt --grouping)
 getcoinsupply=`dcrctl getcoinsupply`
+coinsupplystrip=$(echo "scale=0; $getcoinsupply/100000000" | bc)
+coinsupply=$(echo "$coinsupplystrip" | numfmt --grouping)
 getconnectioncount=`dcrctl getconnectioncount`
-
 printf "\033c"
 echo ">>>>>>>>>>"
 voteVersion=$(echo "$voteChoices" | jq '.version')
@@ -137,9 +141,9 @@ echo " | Blockheight: $blockcount"
 echo ""
 /bin/echo -e "\e[36m	.-=[ deCRED WALLET ]=-. 		.-=[ POS TICKETS ]=-.			.-=[ NETWORK ]=-."
 echo ""
-/bin/echo -e "\e[1m	All:		$balanceAll 		All: 		$(($immature+$live))			Hashrate:	$getnetworkhashps\e[0m"
-echo "	Locked: 	$balanceLocked		Mature:         $live			Difficulty:	$getdifficulty"
-/bin/echo -e "\e[1m 	Spendable:	$balanceSpendable 		Immature:       $immature			CoinSupply	$getcoinsupply\e[0m"
+/bin/echo -e "\e[1m	All:		$balanceAll 		All: 		$(($immature+$live))			Hashrate:	$networkhashth TH/s \e[0m"
+echo "	Locked: 	$balanceLocked		Mature:         $live			Difficulty:	$difficulty"
+/bin/echo -e "\e[1m 	Spendable:	$balanceSpendable 		Immature:       $immature			CoinSupply	$coinsupply\e[0m"
 echo "	Immature All:	$imatureFunds 		Done:           $voted			Peers:		$getconnectioncount"
 /bin/echo -e "\e[1m	^ Coinbase: 	$balanceImmaturecoinbaserewards			Won:            $totalsubsidy\e[0m"
 echo "	^ Stakegen: 	$balanceImmaturestakegeneration"
@@ -148,9 +152,9 @@ echo ""
 echo ""
 /bin/echo -e "\e[36m 	.-=[ TICKETBUYER ]=-.			.-=[ TICKET STATISTICS ]=-.		.-=]MEMPOOL[=-."
 echo ""
-/bin/echo -e "\e[1m 	Price Now: 	$difficulty		Done:           $voted			 MemFeeMax:      $ticketfeeinfoMax\e[0m"
+/bin/echo -e "\e[1m 	Price Now: 	$stakedifficulty		Done:           $voted			 MemFeeMax:      $ticketfeeinfoMax\e[0m"
 echo "	Next Expected: 	$difficultyExpected		Won:            $totalsubsidy		 MemFeeMin:      $ticketfeeinfoMin"
-/bin/echo -e "\e[1m 	Next Max:	$difficultyMax		Missed:         $missed			MemFeeMedian:   $ticketfeeinfoMedian\e[0m"
+/bin/echo -e "\e[1m 	Next Max:	$difficultyMax		Missed:         $missed			 MemFeeMedian:   $ticketfeeinfoMedian\e[0m"
 echo "	Next Min:	$difficultyMin 		Missed %	$missedc2"
 /bin/echo -e "\e[1m 	Poolsize:       $poolsize 			Revoked:        $revoked\e[0m"
 echo "	AllMempool:     $allmempooltix 			Expired:        $expired"
